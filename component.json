@@ -1,6 +1,6 @@
 {
-  "name": "interpolation",
-  "repo": "ripplejs/interpolation",
+  "name": "interpolate",
+  "repo": "ripplejs/interpolate",
   "description": "Interpolate a string using expressions",
   "version": "0.0.1",
   "keywords": [],
