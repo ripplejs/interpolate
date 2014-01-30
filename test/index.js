@@ -1,4 +1,4 @@
-var interpolate = require('interpolation');
+var interpolate = require('interpolate');
 var assert = require('assert');
 
 describe('interpolation', function(){
@@ -45,4 +45,26 @@ describe('interpolation', function(){
     var result = interpolate('Hello {{world}}!', {});
     assert(result === "Hello !");
   })
+
+  it('should throw an error if a filter is missing', function(){
+    try {
+      interpolate('Hello {{world | caps}}!');
+    }
+    catch(e) {
+      var message = e.message;
+    }
+    assert(message === 'Missing filter named "caps"');
+  });
+
+  it('should allow filters with arguments', function(){
+    var result = interpolate('{{world | caps:" world!" }}', {
+      world: 'Hello'
+    }, {
+      caps: function(val, text) {
+        return val.toUpperCase() + text;
+      }
+    });
+    assert(result === "HELLO world!");
+  });
+
 })

@@ -2,11 +2,12 @@
   "name": "interpolate",
   "repo": "ripplejs/interpolate",
   "description": "Interpolate a string using expressions",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "keywords": [],
   "dependencies": {
     "component/assert": "0.3.0",
-    "ripplejs/expression": "0.0.1"
+    "ripplejs/expression": "0.0.1",
+    "component/format-parser": "0.0.2"
   },
   "development": {},
   "license": "MIT",

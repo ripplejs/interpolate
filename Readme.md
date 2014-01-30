@@ -1,5 +1,5 @@
 
-# interpolation
+# interpolate
 
   Interpolate a string using expressions, data and filters.
 
@@ -7,7 +7,7 @@
 
   Install with [component(1)](http://component.io):
 
-    $ component install ripplejs/interpolation
+    $ component install ripplejs/interpolate
 
 ## API
 
@@ -42,6 +42,29 @@ Filters are piped, UNIX-style.
 
 ```js
 interpolate('Hello {{ world | caps | currency | makeItRed }}!')
+```
+
+You can also pass in arguments to filters
+
+```js
+interpolate('Hello {{ world | date:%B %d, %Y at %I:%M%P }}');
+```
+
+Arguments start after `:` and are separated by a `,`. The filter function will
+be passed the value first and the arguments after that, and should return the
+value.
+
+```
+function date(val, arg1, arg2) {
+  return val;
+}
+```
+
+In the previous example, you can wrap the args in quotes to send it through as
+a single argument:
+
+```js
+interpolate('Hello {{ world | date":%B %d, %Y at %I:%M%P" }}');
 ```
 
 ## License
