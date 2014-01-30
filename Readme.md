@@ -1,5 +1,4 @@
-
-# interpolation
+# interpolate
 
   Interpolate a string using expressions, data and filters.
 
@@ -7,7 +6,7 @@
 
   Install with [component(1)](http://component.io):
 
-    $ component install ripplejs/interpolation
+    $ component install ripplejs/interpolate
 
 ## API
 
