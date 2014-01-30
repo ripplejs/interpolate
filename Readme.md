@@ -1,4 +1,3 @@
-
 # interpolate
 
   Interpolate a string using expressions, data and filters.
