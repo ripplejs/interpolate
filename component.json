@@ -7,7 +7,9 @@
   "dependencies": {
     "component/assert": "0.3.0",
     "ripplejs/expression": "0.0.1",
-    "component/format-parser": "0.0.2"
+    "component/format-parser": "0.0.2",
+    "yields/uniq": "master",
+    "component/props": "1.1.0"
   },
   "development": {},
   "license": "MIT",
