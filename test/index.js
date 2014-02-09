@@ -82,4 +82,11 @@ describe('interpolation', function(){
     assert(result === "");
   });
 
+  it('should render zeroes', function(){
+    var result = interpolate('{{world}}', {
+      world: 0
+    });
+    assert(result === "0");
+  });
+
 })
