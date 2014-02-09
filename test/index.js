@@ -75,4 +75,11 @@ describe('interpolation', function(){
     assert(props[2] === "age");
   });
 
+  it('should return an empty string for falsy values', function(){
+    var result = interpolate('{{world}}', {
+      world: false
+    });
+    assert(result === "");
+  });
+
 })

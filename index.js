@@ -63,7 +63,7 @@ function interpolate(input, data, filters){
     if(parts.length) {
       val = filter(val, parts, filters);
     }
-    return val == null ? '' : val;
+    return !val ? '' : val;
   });
 }
 
