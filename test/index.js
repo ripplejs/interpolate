@@ -67,4 +67,12 @@ describe('interpolation', function(){
     assert(result === "HELLO world!");
   });
 
+  it('should get all the properies used in a string', function(){
+    var props = interpolate.props('Hello {{world}}! My name is {{user.name}} and I am {{ (age / 2) + 7 }}.');
+    assert(props.length === 3);
+    assert(props[0] === "world");
+    assert(props[1] === "user");
+    assert(props[2] === "age");
+  });
+
 })

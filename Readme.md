@@ -68,6 +68,15 @@ a single argument:
 interpolate('Hello {{ world | date":%B %d, %Y at %I:%M%P" }}');
 ```
 
+## Get Dependencies
+
+You can get all of the properties needed for a string by passing a string to #props
+
+```js
+var deps = interpolate.props('Hello {{world}}');
+// deps = ['world']
+```
+
 ## License
 
   The MIT License (MIT)
