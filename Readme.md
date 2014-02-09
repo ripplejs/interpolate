@@ -1,5 +1,7 @@
 # interpolate
 
+[![Build Status](https://travis-ci.org/ripplejs/interpolate.png?branch=master)](https://travis-ci.org/ripplejs/interpolate)
+
   Interpolate a string using expressions, data and filters.
 
 ## Installation
