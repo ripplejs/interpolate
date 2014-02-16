@@ -1,7 +1,20 @@
-var interpolate = require('interpolate');
+var Interpolate = require('interpolate');
 var assert = require('assert');
 
 describe('interpolation', function(){
+  var interpolate;
+
+  beforeEach(function () {
+    interpolate = new Interpolate();
+
+    interpolate.filter('caps', function(val) {
+      return val.toUpperCase();
+    });
+
+    interpolate.filter('append', function(val, text) {
+      return val + text;
+    });
+  });
 
   describe('relacing values in strings', function () {
 
@@ -25,13 +38,9 @@ describe('interpolation', function(){
       assert(result === 'Hello Pluto! My name is SpongeBob Squarepants and I am 20.');
     })
 
-    it('should allow filters', function(){
+    it('should use filters', function(){
       var result = interpolate.replace('Hello {{world | caps}}!', {
         world: 'Pluto'
-      }, {
-        caps: function(val) {
-          return val.toUpperCase();
-        }
       });
       assert(result === "Hello PLUTO!");
     })
@@ -50,23 +59,19 @@ describe('interpolation', function(){
 
     it('should throw an error if a filter is missing', function(){
       try {
-        interpolate.replace('Hello {{world | caps}}!');
+        interpolate.replace('Hello {{world | lower}}!');
       }
       catch(e) {
         var message = e.message;
       }
-      assert(message === 'Missing filter named "caps"');
+      assert(message === 'Missing filter named "lower"');
     });
 
     it('should allow filters with arguments', function(){
-      var result = interpolate.replace('{{world | caps:" world!" }}', {
-        world: 'Hello'
-      }, {
-        caps: function(val, text) {
-          return val.toUpperCase() + text;
-        }
+      var result = interpolate.replace('{{greeting | append:" world!" }}', {
+        greeting: 'Hello'
       });
-      assert(result === "HELLO world!");
+      assert(result === "Hello world!");
     });
 
     it('should return false for a false value', function(){

@@ -4,12 +4,6 @@ var unique = require('uniq');
 var props = require('props');
 
 /**
- * Regex to match expressions
- * @type {RegExp}
- */
-var match = /\{\{([^}]+)\}\}/g;
-
-/**
  * Run a value through all filters
  *
  * @param  {Mixed}  val    Any value returned from an expression
@@ -32,6 +26,51 @@ function filter(val, types, fns) {
 }
 
 /**
+ * Create a new interpolator
+ */
+function Interpolate() {
+  this.match = /\{\{([^}]+)\}\}/g;
+  this.filters = {};
+}
+
+/**
+ * Hook for plugins
+ *
+ * @param {Function} fn
+ *
+ * @return {Interpolate}
+ */
+Interpolate.prototype.use = function(fn) {
+  fn(this);
+  return this;
+};
+
+/**
+ * Set the delimiters
+ *
+ * @param {Regex} match
+ *
+ * @return {Interpolate}
+ */
+Interpolate.prototype.delimiters = function(match) {
+  this.match = match;
+  return this;
+};
+
+/**
+ * Add a new filter
+ *
+ * @param {String} name
+ * @param {Function} fn
+ *
+ * @return {Interpolate}
+ */
+Interpolate.prototype.filter = function(name, fn){
+  this.filters[name] = fn;
+  return this;
+};
+
+/**
  * Interpolate a string using the contents
  * inside of the delimiters
  *
@@ -40,16 +79,16 @@ function filter(val, types, fns) {
  * @param  {Object} filters Mapping of filters
  * @return {String}
  */
-var interpolate = exports.interpolate = function(str, data, filters){
-  var parts = str.split('|');
+Interpolate.prototype.exec = function(input, data){
+  var parts = input.split('|');
   var expr = parts.shift();
   var fn = new Expression(expr);
   var val = fn.exec(data);
   if(parts.length) {
-    val = filter(val, parts, filters);
+    val = filter(val, parts, this.filters);
   }
   return val;
-}
+};
 
 /**
  * Interpolate as a string and replace each
@@ -57,9 +96,10 @@ var interpolate = exports.interpolate = function(str, data, filters){
  *
  * @return {String}
  */
-exports.replace = function(input, data, filters){
-  return input.replace(match, function(_, match){
-    var val = interpolate(match, data, filters);
+Interpolate.prototype.replace = function(input, data){
+  var self = this;
+  return input.replace(this.match, function(_, match){
+    var val = self.exec(match, data);
     return (val == null) ? '' : val;
   });
 };
@@ -68,12 +108,12 @@ exports.replace = function(input, data, filters){
 /**
  * Get the interpolated value from a string
  */
-exports.value = function(input, data, filters){
-  var test = new RegExp(match);
+Interpolate.prototype.value = function(input, data){
+  var test = new RegExp(this.match);
   var matches = test.exec(input);
   if( !matches ) return input;
-  if( matches[0].length !== input.length ) return exports.replace(input, data, filters);
-  return interpolate(matches[1], data, filters);
+  if( matches[0].length !== input.length ) return this.replace(input, data);
+  return this.exec(matches[1], data);
 };
 
 
@@ -82,11 +122,12 @@ exports.value = function(input, data, filters){
  *
  * @return {Array} Array of values
  */
-exports.values = function(input, data, filters){
-  var matches = input.match(match);
+Interpolate.prototype.values = function(input, data){
+  var self = this;
+  var matches = input.match(this.match);
   if( !matches ) return [];
   return matches.map(function(val){
-    return exports.value(val, data, filters);
+    return self.value(val, data);
   });
 };
 
@@ -96,13 +137,16 @@ exports.values = function(input, data, filters){
  * @param  {String} str
  * @return {Array}
  */
-exports.props = function(str) {
+Interpolate.prototype.props = function(str) {
   var m;
   var arr = [];
-  var re = match;
+  var re = this.match;
   while (m = re.exec(str)) {
     var expr = m[1];
     arr = arr.concat(props(expr));
   }
   return unique(arr);
 };
+
+
+module.exports = Interpolate;

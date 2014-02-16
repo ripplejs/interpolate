@@ -10,45 +10,46 @@
 
     $ component install ripplejs/interpolate
 
-## API
+## Getting Started
 
-Interpolate is a function that takes a string, some data and some optional
-filters.
+Interpolate is a constructor function. You can set the delimiters and filters
+on the interpolator once it has been created.
 
 ```js
-var result = interpolate('Hello {{world}}! I am {{ (age / 2) + 7 }}.', {
+var Interpolator = require('interpolate');
+var interpolate = new Interpolator();
+
+var result = interpolate.replace('Hello {{world}}! I am {{ (age / 2) + 7 }}.', {
   world: 'Pluto',
   age: 26
 });
 ```
 
-You can pass filters in as a third parameter:
+The `.replace` method replaces interpolation expressions within strings.
+
+You can add filters:
 
 ```js
-var data = {
+interpolate.filter('caps', function(val){
+  return val.toUpperCase();
+});
+
+var result = interpolate.replace('Hello {{world | caps}}!', {
   world: 'Pluto',
   age: 26
-};
-
-var filters = {
-  caps: function(val){
-    return val.toUpperCase();
-  }
-};
-
-var result = interpolate('Hello {{world | caps}}!', data, filters);
+});
 ```
 
 Filters are piped, UNIX-style.
 
 ```js
-interpolate('Hello {{ world | caps | currency | makeItRed }}!')
+interpolate.replace('Hello {{ world | caps | currency | makeItRed }}!')
 ```
 
 You can also pass in arguments to filters
 
 ```js
-interpolate('Hello {{ world | date:%B %d, %Y at %I:%M%P }}');
+interpolate.replace('Hello {{ world | date:%B %d, %Y at %I:%M%P }}');
 ```
 
 Arguments start after `:` and are separated by a `,`. The filter function will
@@ -56,25 +57,124 @@ be passed the value first and the arguments after that, and should return the
 value.
 
 ```
-function date(val, arg1, arg2) {
+interpolate.filter('date', function(val, arg1, arg2) {
   return val;
-}
+});
 ```
 
 In the previous example, you can wrap the args in quotes to send it through as
 a single argument:
 
 ```js
-interpolate('Hello {{ world | date":%B %d, %Y at %I:%M%P" }}');
+interpolate.replace('Hello {{ world | date":%B %d, %Y at %I:%M%P" }}');
 ```
 
-## Get Dependencies
+## API
+
+### Interpolator()
+
+Return a new interpolator
+
+```js
+var interpolate = new Interpolator();
+```
+
+### interpolate#filter(name, fn)
+
+Add a new filter
+
+```js
+interpolate.filter('caps', function(val){
+  return val.toUpperCase();
+});
+```
+
+If the filter passes in arguments they will be sent to this function.
+
+```js
+interpolate.filter('date', function(val, date, time){
+  return val;
+});
+
+interpolate.replace('Hello {{ world | date:%B %d, %Y at %I:%M%P }}');
+```
+
+Arguments are separated by a comma. The can be wrapped in quotes to return a single paramter:
+
+```js
+interpolate.filter('date', function(val, date){
+  return val;
+});
+
+interpolate.replace('Hello {{ world | date:"%B %d, %Y at %I:%M%P" }}');
+```
+
+### interpolate#delimiters(regex)
+
+Set the delimiters to use for expressions. Defaults to using `{{expr}}`-style.
+
+This regex must match this format: `/\{\{([^}]+)\}\}/g`
+
+The first match must be the contents of the delimiters and it must be a global match.
+
+### interpolate#replace(string, data)
+
+Replace the expressions within a string and return the new string. Use
+this method when you know you want the returned value to be a string.
+
+```js
+var result = interpolate.replace('Hello {{world}}! I am {{ (age / 2) + 7 }}.', {
+  world: 'Pluto',
+  age: 26
+});
+```
+
+### interpolate#props
 
 You can get all of the properties needed for a string by passing a string to #props
 
 ```js
 var deps = interpolate.props('Hello {{world}}');
 // deps = ['world']
+```
+
+### interpolate#values(string, data)
+
+Get the result of all expressions within a string
+
+```js
+var values = interpolate.values('Hi {{name}}, The items are {{items}} with {{items.length}}', {
+  items: items,
+  name: 'Fred'
+});
+
+values[0] === 'Fred'
+values[1] === items
+values[2] === 3
+```
+
+### interpolate#value(string, data)
+
+Get the raw result of an expression instead of a string.
+
+```js
+var value = interpolate.value('{{items}}', {
+  items: [1,2,3]
+});
+
+value === [1,2,3]
+```
+
+If there is more than a single expression, it is smart enough to realize that
+you will want to interpolate a string and will switch the the `.replace` method.
+
+```js
+var value = interpolate.value('Hello {{name}}! You have {{messages.length}} messages', {
+  name: 'Fred',
+  messages: []
+});
+
+value === 'Hello Fred! You have 0 messages'
 ```
 
 ## License
