@@ -10,22 +10,6 @@ var props = require('props');
 var match = /\{\{([^}]+)\}\}/g;
 
 /**
- * Find all the properties used in all expressions in a string
- * @param  {String} str
- * @return {Array}
- */
-function dependencies(str) {
-  var m;
-  var arr = [];
-  var re = match;
-  while (m = re.exec(str)) {
-    var expr = m[1];
-    arr = arr.concat(props(expr));
-  }
-  return unique(arr);
-}
-
-/**
  * Run a value through all filters
  *
  * @param  {Mixed}  val    Any value returned from an expression
@@ -48,34 +32,77 @@ function filter(val, types, fns) {
 }
 
 /**
- * Interpolate a string
+ * Interpolate a string using the contents
+ * inside of the delimiters
+ *
  * @param  {String} input
  * @param  {Object} data    Data to pass to the expressions
  * @param  {Object} filters Mapping of filters
  * @return {String}
  */
-function interpolate(input, data, filters){
-  return input.replace(match, function(_, match){
-    var parts = match.split('|');
-    var expr = parts.shift();
-    var fn = new Expression(expr);
-    var val = fn.exec(data);
-    if(parts.length) {
-      val = filter(val, parts, filters);
-    }
-    return (val == null || val === false) ? '' : val;
-  });
+var interpolate = exports.interpolate = function(str, data, filters){
+  var parts = str.split('|');
+  var expr = parts.shift();
+  var fn = new Expression(expr);
+  var val = fn.exec(data);
+  if(parts.length) {
+    val = filter(val, parts, filters);
+  }
+  return val;
 }
 
 /**
- * Export
- * @type {[type]}
+ * Interpolate as a string and replace each
+ * match with the interpolated value
+ *
+ * @return {String}
  */
-exports = module.exports = interpolate;
+exports.replace = function(input, data, filters){
+  return input.replace(match, function(_, match){
+    var val = interpolate(match, data, filters);
+    return (val == null) ? '' : val;
+  });
+};
+
 
 /**
- * Get all the properties used in all expressions in a string
+ * Get the interpolated value from a string
+ */
+exports.value = function(input, data, filters){
+  var test = new RegExp(match);
+  var matches = test.exec(input);
+  if( !matches ) return input;
+  if( matches[0].length !== input.length ) return exports.replace(input, data, filters);
+  return interpolate(matches[1], data, filters);
+};
+
+
+/**
+ * Get all the interpolated values from a string
+ *
+ * @return {Array} Array of values
+ */
+exports.values = function(input, data, filters){
+  var matches = input.match(match);
+  if( !matches ) return [];
+  return matches.map(function(val){
+    return exports.value(val, data, filters);
+  });
+};
+
+
+/**
+ * Find all the properties used in all expressions in a string
  * @param  {String} str
  * @return {Array}
  */
-exports.props = dependencies;
+exports.props = function(str) {
+  var m;
+  var arr = [];
+  var re = match;
+  while (m = re.exec(str)) {
+    var expr = m[1];
+    arr = arr.concat(props(expr));
+  }
+  return unique(arr);
+};
