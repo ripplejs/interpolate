@@ -58,6 +58,20 @@ Interpolate.prototype.delimiters = function(match) {
 };
 
 /**
+ * Check if a string matches the delimiters
+ *
+ * @param {String} input
+ *
+ * @return {Array}
+ */
+Interpolate.prototype.matches = function(input) {
+  var test = new RegExp(this.match.source);
+  var matches = test.exec(input);
+  if(!matches) return [];
+  return matches;
+};
+
+/**
  * Add a new filter
  *
  * @param {String} name
@@ -90,6 +104,7 @@ Interpolate.prototype.exec = function(input, data){
   return val;
 };
 
+
 /**
  * Interpolate as a string and replace each
  * match with the interpolated value
@@ -109,9 +124,8 @@ Interpolate.prototype.replace = function(input, data){
  * Get the interpolated value from a string
  */
 Interpolate.prototype.value = function(input, data){
-  var test = new RegExp(this.match);
-  var matches = test.exec(input);
-  if( !matches ) return input;
+  var matches = this.matches(input);
+  if( matches.length === 0 ) return input;
   if( matches[0].length !== input.length ) return this.replace(input, data);
   return this.exec(matches[1], data);
 };
