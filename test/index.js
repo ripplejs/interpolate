@@ -169,5 +169,32 @@ describe('interpolation', function(){
 
   });
 
+  describe('checking for interpolation', function () {
+
+    it('should find interpolation', function () {
+      assert( interpolate.has('{{foo}}') );
+    });
+
+    it('should not find interpolation', function () {
+      assert( interpolate.has('Hello world') === false );
+    });
+
+    it('should find interpolation in a long string', function () {
+      assert( interpolate.has('Hello world, this is {{foo}}') );
+    });
+
+    it('should find interpolation in a string with multiple expression', function () {
+      assert( interpolate.has('Hello {{world}}, this is {{foo}}') );
+    });
+
+    it('should find interpolation with custom delimiters', function () {
+      interpolate.delimiters(/\<\%(.*?)\%\>/g);
+      assert( interpolate.has('Hello {{world}}, this is {{foo}}') === false );
+      assert( interpolate.has('Hello <% world %>, this is <% foo %>') );
+    });
+
+
+  });
+
 
 })

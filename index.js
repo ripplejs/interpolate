@@ -106,6 +106,18 @@ Interpolate.prototype.exec = function(input, data){
 
 
 /**
+ * Check if a string has interpolation
+ *
+ * @param {String} input
+ *
+ * @return {Boolean}
+ */
+Interpolate.prototype.has = function(input) {
+  return input.search(this.match) > -1;
+};
+
+
+/**
  * Interpolate as a string and replace each
  * match with the interpolated value
  *
