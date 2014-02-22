@@ -101,6 +101,14 @@ describe('interpolation', function(){
       assert(props[2] === "age");
     });
 
+    it('should get the properties when there are filters', function () {
+      var props = interpolate.props('Hello {{world | foo}}! My name is {{user.name | bar}} and I am {{ (age / 2) + 7 | bar}}.');
+      assert(props.length === 3);
+      assert(props[0] === "world");
+      assert(props[1] === "user");
+      assert(props[2] === "age");
+    });
+
   });
 
   describe('getting values', function () {

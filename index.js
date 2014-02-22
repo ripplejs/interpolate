@@ -168,7 +168,7 @@ Interpolate.prototype.props = function(str) {
   var arr = [];
   var re = this.match;
   while (m = re.exec(str)) {
-    var expr = m[1];
+    var expr = m[1].split('|')[0];
     arr = arr.concat(props(expr));
   }
   return unique(arr);
