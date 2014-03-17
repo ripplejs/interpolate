@@ -149,10 +149,8 @@ Interpolate.prototype.value = function(input, options){
  */
 Interpolate.prototype.values = function(input, options){
   var self = this;
-  var matches = input.match(this.match);
-  if( !matches ) return [];
-  return matches.map(function(val){
-    return self.value(val, options);
+  return this.map(input, function(match){
+    return self.value(match, options);
   });
 };
 
