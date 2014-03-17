@@ -260,12 +260,38 @@ describe('interpolation', function(){
       });
     });
 
+    it('should not fail if there are no expressions', function (done) {
+      interpolate.each('Hello world', function(){
+        done(false);
+      });
+      done();
+    });
+
     it('should map an expression', function () {
       var result = interpolate.map('Hello {{world}}, this is {{ foo | toUpperCase | toLowerCase:foo,bar }}', function(match, expr, filters, index){
         return filters;
       });
       assert(result[0] === '');
       assert(result[1] === " toUpperCase | toLowerCase:foo,bar ");
+    });
+
+    it('should not map if there are no expressions', function (done) {
+      var result = interpolate.map('Hello world', function(){
+        done(false);
+      });
+      assert(result.length === 0);
+      done();
+    });
+
+    it('should map multiple expressions', function () {
+      var result = interpolate.map('Hello {{world}}', function(match){
+        return match;
+      });
+      var result2 = interpolate.map('{{Hello}} world', function(match){
+        return match;
+      });
+      assert(result[0] === '{{world}}');
+      assert(result2[0] === '{{Hello}}');
     });
 
   });
