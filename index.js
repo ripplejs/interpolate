@@ -193,6 +193,14 @@ Interpolate.prototype.each = function(str, callback) {
 };
 
 
+/**
+ * Map the string
+ *
+ * @param {String} str
+ * @param {Function} callback
+ *
+ * @return {Array}
+ */
 Interpolate.prototype.map = function(str, callback) {
   var ret = [];
   this.each(str, function(){
