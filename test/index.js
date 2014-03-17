@@ -24,30 +24,38 @@ describe('interpolation', function(){
 
     it('should interpolate properties in a string', function(){
       var result = interpolate.replace('Hello {{world}}!', {
-        world: 'Pluto'
+        scope: {
+          world: 'Pluto'
+        }
       });
       assert(result === "Hello Pluto!");
     })
 
     it('should interpolate many properties in a string', function(){
       var result = interpolate.replace('Hello {{world}}! My name is {{name}} and I am {{ (age / 2) + 7 }}.', {
-        world: 'Pluto',
-        name: 'SpongeBob Squarepants',
-        age: 26
+        scope: {
+          world: 'Pluto',
+          name: 'SpongeBob Squarepants',
+          age: 26
+        }
       });
       assert(result === 'Hello Pluto! My name is SpongeBob Squarepants and I am 20.');
     })
 
     it('should use filters', function(){
       var result = interpolate.replace('Hello {{world | caps}}!', {
-        world: 'Pluto'
+        scope: {
+          world: 'Pluto'
+        }
       });
       assert(result === "Hello PLUTO!");
     })
 
     it('should return an empty string if the value is null', function(){
       var result = interpolate.replace('Hello {{world}}!', {
-        world: null
+        scope: {
+          world: null
+        }
       });
       assert(result === "Hello !");
     })
@@ -69,21 +77,27 @@ describe('interpolation', function(){
 
     it('should allow filters with arguments', function(){
       var result = interpolate.replace('{{greeting | append:" world!" }}', {
-        greeting: 'Hello'
+        scope: {
+          greeting: 'Hello'
+        }
       });
       assert(result === "Hello world!");
     });
 
     it('should return false for a false value', function(){
       var result = interpolate.replace('{{world}}', {
-        world: false
+        scope: {
+          world: false
+        }
       });
       assert(result === "false");
     });
 
     it('should render zeroes', function(){
       var result = interpolate.replace('{{world}}', {
-        world: 0
+        scope: {
+          world: 0
+        }
       });
       assert(result === "0");
     });
@@ -115,21 +129,36 @@ describe('interpolation', function(){
 
     it('should return the value of an interpolation', function () {
       var value = interpolate.value('{{world}}', {
-        world: 'pluto'
+        scope: {
+          world: 'pluto'
+        }
+      });
+      assert(value === 'pluto');
+    });
+
+    it('should return the value of an interpolation with context', function () {
+      var value = interpolate.value('{{this.world}}', {
+        context: {
+          world: 'pluto'
+        }
       });
       assert(value === 'pluto');
     });
 
     it('should return the input if there is no interpolation', function () {
       var value = interpolate.value('world', {
-        world: 'pluto'
+        scope: {
+          world: 'pluto'
+        }
       });
       assert(value === 'world');
     });
 
     it('should return the interpolated string if there is more than a single interpolation', function () {
       var value = interpolate.value('Hello {{world}}', {
-        world: 'pluto'
+        scope: {
+          world: 'pluto'
+        }
       });
       assert(value === 'Hello pluto');
     });
@@ -137,28 +166,36 @@ describe('interpolation', function(){
     it('should return the value of an interpolation if it is an array', function () {
       var items = [1,2,3];
       var value = interpolate.value('{{items}}', {
-        items: items
+        scope: {
+          items: items
+        }
       });
       assert(value === items);
     });
 
     it('should return the value of an interpolation if it is a boolean', function () {
       var value = interpolate.value('{{hidden}}', {
-        hidden: true
+        scope: {
+          hidden: true
+        }
       });
       assert(value === true);
     });
 
     it('should return the interpolated string with a true boolean', function () {
       var value = interpolate.value('it is {{hidden}}', {
-        hidden: true
+        scope: {
+          hidden: true
+        }
       });
       assert(value === 'it is true');
     });
 
     it('should return the interpolated string with a false boolean', function () {
       var value = interpolate.value('it is {{hidden}}', {
-        hidden: false
+        scope: {
+          hidden: false
+        }
       });
       assert(value === 'it is false');
     });
@@ -166,8 +203,10 @@ describe('interpolation', function(){
     it('should return an array with all of the values', function(){
       var items = [1,2,3];
       var values = interpolate.values('Hi {{name}}, The items are {{items}} with {{items.length}}', {
-        items: items,
-        name: 'Fred'
+        scope: {
+          items: items,
+          name: 'Fred'
+        }
       });
       assert(values[0] === 'Fred');
       assert(values[1] === items);
@@ -201,6 +240,33 @@ describe('interpolation', function(){
       assert( interpolate.has('Hello <% world %>, this is <% foo %>') );
     });
 
+  });
+
+  describe('iteration', function () {
+
+    it('should iterate through expressions', function (done) {
+      interpolate.each('Hello {{world}}, this is {{ foo | toUpperCase | toLowerCase:foo,bar }}', function(match, expr, filters, index){
+        if(index === 0) {
+          assert(match === "{{world}}");
+          assert(expr === "world");
+          assert(filters === '');
+        }
+        if(index === 1) {
+          assert(match === "{{ foo | toUpperCase | toLowerCase:foo,bar }}");
+          assert(expr === " foo ");
+          assert(filters == " toUpperCase | toLowerCase:foo,bar ");
+          done();
+        }
+      });
+    });
+
+    it('should map an expression', function () {
+      var result = interpolate.map('Hello {{world}}, this is {{ foo | toUpperCase | toLowerCase:foo,bar }}', function(match, expr, filters, index){
+        return filters;
+      });
+      assert(result[0] === '');
+      assert(result[1] === " toUpperCase | toLowerCase:foo,bar ");
+    });
 
   });
 

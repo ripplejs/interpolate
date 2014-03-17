@@ -1,7 +1,6 @@
 var Expression = require('expression');
 var parse = require('format-parser');
 var unique = require('uniq');
-var props = require('props');
 
 /**
  * Run a value through all filters
@@ -89,15 +88,15 @@ Interpolate.prototype.filter = function(name, fn){
  * inside of the delimiters
  *
  * @param  {String} input
- * @param  {Object} data    Data to pass to the expressions
- * @param  {Object} filters Mapping of filters
+ * @param  {Object} options
  * @return {String}
  */
-Interpolate.prototype.exec = function(input, data){
+Interpolate.prototype.exec = function(input, options){
+  options = options || {};
   var parts = input.split('|');
   var expr = parts.shift();
   var fn = new Expression(expr);
-  var val = fn.exec(data);
+  var val = fn.exec(options.scope, options.context);
   if(parts.length) {
     val = filter(val, parts, this.filters);
   }
@@ -123,10 +122,10 @@ Interpolate.prototype.has = function(input) {
  *
  * @return {String}
  */
-Interpolate.prototype.replace = function(input, data){
+Interpolate.prototype.replace = function(input, options){
   var self = this;
   return input.replace(this.match, function(_, match){
-    var val = self.exec(match, data);
+    var val = self.exec(match, options);
     return (val == null) ? '' : val;
   });
 };
@@ -135,11 +134,11 @@ Interpolate.prototype.replace = function(input, data){
 /**
  * Get the interpolated value from a string
  */
-Interpolate.prototype.value = function(input, data){
+Interpolate.prototype.value = function(input, options){
   var matches = this.matches(input);
   if( matches.length === 0 ) return input;
-  if( matches[0].length !== input.length ) return this.replace(input, data);
-  return this.exec(matches[1], data);
+  if( matches[0].length !== input.length ) return this.replace(input, options);
+  return this.exec(matches[1], options);
 };
 
 
@@ -148,12 +147,12 @@ Interpolate.prototype.value = function(input, data){
  *
  * @return {Array} Array of values
  */
-Interpolate.prototype.values = function(input, data){
+Interpolate.prototype.values = function(input, options){
   var self = this;
   var matches = input.match(this.match);
   if( !matches ) return [];
   return matches.map(function(val){
-    return self.value(val, data);
+    return self.value(val, options);
   });
 };
 
@@ -164,14 +163,42 @@ Interpolate.prototype.values = function(input, data){
  * @return {Array}
  */
 Interpolate.prototype.props = function(str) {
-  var m;
   var arr = [];
+  this.each(str, function(match, expr, filters){
+    var fn = new Expression(expr);
+    arr = arr.concat(fn.props);
+  });
+  return unique(arr);
+};
+
+
+/**
+ * Loop through each matched expression in a string
+ *
+ * @param {String} str
+ *
+ * @return {void}
+ */
+Interpolate.prototype.each = function(str, callback) {
+  var m;
+  var index = 0;
   var re = this.match;
   while (m = re.exec(str)) {
-    var expr = m[1].split('|')[0];
-    arr = arr.concat(props(expr));
+    var parts = m[1].split('|');
+    var expr = parts.shift();
+    var filters = parts.join('|');
+    callback(m[0], expr, filters, index);
+    index++;
   }
-  return unique(arr);
+};
+
+
+Interpolate.prototype.map = function(str, callback) {
+  var ret = [];
+  this.each(str, function(){
+    ret.push(callback.apply(null, arguments));
+  });
+  return ret;
 };
 
 
