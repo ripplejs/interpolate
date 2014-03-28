@@ -51,6 +51,20 @@ describe('interpolation', function(){
       assert(result === "Hello PLUTO!");
     })
 
+    it('should use custom filters', function(){
+      var result = interpolate.replace('Hello {{world | lower}}!', {
+        filters: {
+          lower: function(val){
+            return val.toLowerCase();
+          }
+        },
+        scope: {
+          world: 'Pluto'
+        }
+      });
+      assert(result === "Hello pluto!");
+    })
+
     it('should return an empty string if the value is null', function(){
       var result = interpolate.replace('Hello {{world}}!', {
         scope: {

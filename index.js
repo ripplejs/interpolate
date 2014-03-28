@@ -98,7 +98,7 @@ Interpolate.prototype.exec = function(input, options){
   var fn = new Expression(expr);
   var val = fn.exec(options.scope, options.context);
   if(parts.length) {
-    val = filter(val, parts, this.filters);
+    val = filter(val, parts, options.filters || this.filters);
   }
   return val;
 };
