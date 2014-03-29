@@ -5,13 +5,14 @@
   "version": "0.0.4",
   "keywords": [],
   "dependencies": {
-    "component/assert": "0.3.0",
     "ripplejs/expression": "0.1.0",
     "component/format-parser": "0.0.2",
     "yields/uniq": "master",
     "component/props": "1.1.0"
   },
-  "development": {},
+  "development": {
+    "component/assert": "0.3.0"
+  },
   "license": "MIT",
   "main": "index.js",
   "scripts": [
