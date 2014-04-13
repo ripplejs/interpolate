@@ -2,10 +2,10 @@
   "name": "interpolate",
   "repo": "ripplejs/interpolate",
   "description": "Interpolate a string using expressions",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "keywords": [],
   "dependencies": {
-    "ripplejs/expression": "0.1.0",
+    "ripplejs/expression": "0.2.0",
     "component/format-parser": "0.0.2",
     "yields/uniq": "master",
     "component/props": "*"
