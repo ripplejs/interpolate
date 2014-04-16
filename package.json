@@ -1,0 +1,27 @@
+{
+  "name": "ripplejs-interpolate",
+  "version": "0.4.3",
+  "description": "Interpolate expressions in a string",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ripplejs/interpolate.git"
+  },
+  "keywords": [
+    "interpolation",
+    "template",
+    "string",
+    "expression"
+  ],
+  "author": "Anthony Short",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ripplejs/interpolate/issues"
+  }
+}
