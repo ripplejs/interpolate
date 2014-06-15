@@ -227,6 +227,16 @@ describe('interpolation', function(){
       assert(values[2] === 3);
     });
 
+    it('should return the raw value even there is whitespace around the expression', function () {
+      var items = [1,2,3];
+      var value = interpolate.value('   {{items}}    ', {
+        scope: {
+          items: items
+        }
+      });
+      assert(value === items);
+    });
+
 
   });
 

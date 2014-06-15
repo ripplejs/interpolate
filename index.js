@@ -137,7 +137,7 @@ Interpolate.prototype.replace = function(input, options){
 Interpolate.prototype.value = function(input, options){
   var matches = this.matches(input);
   if( matches.length === 0 ) return input;
-  if( matches[0].length !== input.length ) return this.replace(input, options);
+  if( matches[0].trim().length !== input.trim().length ) return this.replace(input, options);
   return this.exec(matches[1], options);
 };
 
