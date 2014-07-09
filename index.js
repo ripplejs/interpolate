@@ -1,6 +1,7 @@
 var Expression = require('expression');
 var parse = require('format-parser');
 var unique = require('uniq');
+var debug = require('debug')('ripplejs/interpolate');
 
 /**
  * Run a value through all filters
@@ -10,6 +11,7 @@ var unique = require('uniq');
  * @param  {Object} fns     Mapping of filter names, eg. currency, to functions
  * @return {Mixed}
  */
+
 function filter(val, types, fns) {
   fns = fns || {};
   var filters = parse(types.join('|'));
@@ -27,6 +29,7 @@ function filter(val, types, fns) {
 /**
  * Create a new interpolator
  */
+
 function Interpolate() {
   this.match = /\{\{([^}]+)\}\}/g;
   this.filters = {};
@@ -39,6 +42,7 @@ function Interpolate() {
  *
  * @return {Interpolate}
  */
+
 Interpolate.prototype.use = function(fn) {
   fn(this);
   return this;
@@ -51,6 +55,7 @@ Interpolate.prototype.use = function(fn) {
  *
  * @return {Interpolate}
  */
+
 Interpolate.prototype.delimiters = function(match) {
   this.match = match;
   return this;
@@ -63,6 +68,7 @@ Interpolate.prototype.delimiters = function(match) {
  *
  * @return {Array}
  */
+
 Interpolate.prototype.matches = function(input) {
   var test = new RegExp(this.match.source);
   var matches = test.exec(input);
@@ -78,6 +84,7 @@ Interpolate.prototype.matches = function(input) {
  *
  * @return {Interpolate}
  */
+
 Interpolate.prototype.filter = function(name, fn){
   this.filters[name] = fn;
   return this;
@@ -91,18 +98,26 @@ Interpolate.prototype.filter = function(name, fn){
  * @param  {Object} options
  * @return {String}
  */
+
 Interpolate.prototype.exec = function(input, options){
   options = options || {};
   var parts = input.split('|');
   var expr = parts.shift();
   var fn = new Expression(expr);
-  var val = fn.exec(options.scope, options.context);
+  var val;
+
+  try {
+    val = fn.exec(options.scope, options.context);
+  }
+  catch (e) {
+    debug(e.message);
+  }
+
   if(parts.length) {
     val = filter(val, parts, options.filters || this.filters);
   }
   return val;
 };
-
 
 /**
  * Check if a string has interpolation
@@ -111,10 +126,10 @@ Interpolate.prototype.exec = function(input, options){
  *
  * @return {Boolean}
  */
+
 Interpolate.prototype.has = function(input) {
   return input.search(this.match) > -1;
 };
-
 
 /**
  * Interpolate as a string and replace each
@@ -122,6 +137,7 @@ Interpolate.prototype.has = function(input) {
  *
  * @return {String}
  */
+
 Interpolate.prototype.replace = function(input, options){
   var self = this;
   return input.replace(this.match, function(_, match){
@@ -130,10 +146,10 @@ Interpolate.prototype.replace = function(input, options){
   });
 };
 
-
 /**
  * Get the interpolated value from a string
  */
+
 Interpolate.prototype.value = function(input, options){
   var matches = this.matches(input);
   if( matches.length === 0 ) return input;
@@ -141,12 +157,12 @@ Interpolate.prototype.value = function(input, options){
   return this.exec(matches[1], options);
 };
 
-
 /**
  * Get all the interpolated values from a string
  *
  * @return {Array} Array of values
  */
+
 Interpolate.prototype.values = function(input, options){
   var self = this;
   return this.map(input, function(match){
@@ -154,12 +170,12 @@ Interpolate.prototype.values = function(input, options){
   });
 };
 
-
 /**
  * Find all the properties used in all expressions in a string
  * @param  {String} str
  * @return {Array}
  */
+
 Interpolate.prototype.props = function(str) {
   var arr = [];
   this.each(str, function(match, expr, filters){
@@ -169,7 +185,6 @@ Interpolate.prototype.props = function(str) {
   return unique(arr);
 };
 
-
 /**
  * Loop through each matched expression in a string
  *
@@ -177,6 +192,7 @@ Interpolate.prototype.props = function(str) {
  *
  * @return {void}
  */
+
 Interpolate.prototype.each = function(str, callback) {
   var m;
   var index = 0;
@@ -190,7 +206,6 @@ Interpolate.prototype.each = function(str, callback) {
   }
 };
 
-
 /**
  * Map the string
  *
@@ -199,6 +214,7 @@ Interpolate.prototype.each = function(str, callback) {
  *
  * @return {Array}
  */
+
 Interpolate.prototype.map = function(str, callback) {
   var ret = [];
   this.each(str, function(){
@@ -207,5 +223,10 @@ Interpolate.prototype.map = function(str, callback) {
   return ret;
 };
 
+/**
+ * Export the constructor
+ *
+ * @type {Function}
+ */
 
 module.exports = Interpolate;

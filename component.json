@@ -2,13 +2,14 @@
   "name": "interpolate",
   "repo": "ripplejs/interpolate",
   "description": "Interpolate a string using expressions",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "keywords": [],
   "dependencies": {
     "ripplejs/expression": "0.2.0",
     "component/format-parser": "0.0.2",
     "yields/uniq": "master",
-    "component/props": "*"
+    "component/props": "*",
+    "visionmedia/debug": "*"
   },
   "development": {
     "component/assert": "0.3.0"

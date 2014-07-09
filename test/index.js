@@ -79,6 +79,11 @@ describe('interpolation', function(){
       assert(result === "Hello !");
     })
 
+    it('should fail silently when the expression fails', function(){
+      var result = interpolate.replace('Hello {{world.foo.bar}}!', {});
+      assert(result === "Hello !");
+    });
+
     it('should throw an error if a filter is missing', function(){
       try {
         interpolate.replace('Hello {{world | lower}}!');
